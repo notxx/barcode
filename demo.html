@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+	</style>
+	<meta charset="utf-8" />
+	<title>Welcome</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+	<script defer="defer" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="jquery.barcode.js"></script>
+<!--	<script defer="defer">
+jQuery.fn.barcode = function() {
+//	console.log(this);
+	if (!this.length) return;
+	var self = this;
+	this.on("keypress", function(e) { 
+//		console.log(e);
+	if (e.keyCode == 13) {
+		e.preventDefault();
+		var focusables = $(":focusable"),
+			index = focusables.index(this),
+			next = focusables.eq(index + 1).length ? focusables.eq(index + 1) : focusables.eq(0);
+		next.focus();
+	} });
+}
+	</script>-->
+	<script>
+$(function() {
+	$("#barcode").barcode();
+});
+	</script>
+</head>
+<body>
+<form>
+<table>
+<tr>
+<td>
+<input id="barcode" type="text">
+</td>
+</tr>
+<tr>
+<td>
+<textarea>
+</textarea>
+</td>
+</tr>
+<tr>
+<td>
+<input id="barcode1" type="text">
+</td>
+</tr>
+</table>
+</form>
+</body>
+</html>
