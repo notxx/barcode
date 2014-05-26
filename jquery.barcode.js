@@ -1,17 +1,71 @@
-(function(jQuery) {
-if (!jQuery || !jQuery.fn) return;
-jQuery.fn.barcode = function() {
+(function($) {
+if (!$ || !$.fn) return;
+
+var verify = {};
+verify.GTIN = function(code) {
+	if (!code || !/^\d+$/.test(code)) { // is not numeric
+		return false;
+	}
+	switch (code.length) {
+	case 8:
+		code = "000000" + code;
+		break;
+	case 12:
+		code = "00" + code;
+		break;
+	case 13:
+		code = "0" + code;
+		break;
+	case 14:
+		break;
+	default: // wrong number of digits
+		return false;
+	}
+	var sum = 0;
+	for (var i = 0; i < 14; i += 2) {
+		sum += parseInt(code[i]) * 3;
+	}
+	for (var i = 1; i < 14; i += 2) {
+		sum += parseInt(code[i]);
+	}
+	return (sum % 10 == 0);
+};
+
+var defaults = {
+	autoNext : true,
+	verify : false
+};
+
+$.fn.barcode = function(options) {
 //	console.log(this);
 	if (!this.length) return;
-	var self = this;
-	this.on("keypress", function(e) { 
+	if (typeof options === "object")
+		options = $.extend({}, defaults, options);
+	else
+		options = $.extend({}, defaults);
+	if (options.verify === "UPC" || options.verify === "EAN" ||
+			options.verify === "GTIN") {
+		options.verify = verify.GTIN;
+	}
+	this.on("focus click", function() { this.select(); });
+	this.on("keypress", function(e) {
+		var self = $(this);
 //		console.log(e);
 	if (e.keyCode == 13) {
-		e.preventDefault();
-		var focusables = $(":focusable"),
-			index = focusables.index(this),
-			next = focusables.eq(index + 1).length ? focusables.eq(index + 1) : focusables.eq(0);
-		next.focus();
+		e.preventDefault(); // 阻止提交
+		if (typeof options.verify === "function" && // 进行验证
+				!options.verify(self.val())) {
+			this.select();
+			return self.addClass("ui-state-error");
+		}
+		self.removeClass("ui-state-error");
+		if (options.autoNext) { // 跳转焦点
+			var focusables = $(":focusable"),
+				index = focusables.index(this),
+				next = focusables.eq(index + 1).length ? focusables.eq(index + 1) : focusables.eq(0);
+			next.focus();
+		}
 	} });
-}
+};
+
 })(jQuery);

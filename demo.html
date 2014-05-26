@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link id="ui-theme" rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css">
 	<style>
 	</style>
 	<meta charset="utf-8" />
@@ -26,7 +27,7 @@ jQuery.fn.barcode = function() {
 	</script>-->
 	<script>
 $(function() {
-	$("#barcode").barcode();
+	$(".barcode").barcode({ verify: "UPC" });
 });
 	</script>
 </head>
@@ -35,7 +36,7 @@ $(function() {
 <table>
 <tr>
 <td>
-<input id="barcode" type="text">
+<input class="barcode" type="text">
 </td>
 </tr>
 <tr>
@@ -46,7 +47,7 @@ $(function() {
 </tr>
 <tr>
 <td>
-<input id="barcode1" type="text">
+<input class="barcode" type="text">
 </td>
 </tr>
 </table>
