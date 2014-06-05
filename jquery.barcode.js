@@ -32,9 +32,59 @@ verify.GTIN = function(code) {
 };
 
 var defaults = {
+	lag : 30,
 	autoNext : true,
 	verify : false
 };
+
+var handler = {};
+handler.focusable = function(e) {
+	var self = $(this), 
+		barcode = self.data("barcode"), 
+		options = self.data("barcode.options");
+//	console.log(e);
+	if (e.keyCode == 13) {
+		e.preventDefault(); // 阻止提交
+		if ($.isFunction(options.verify) && // 进行验证
+				!options.verify(self.val())) {
+			this.select();
+			return self.addClass("ui-state-error");
+		}
+		self.removeClass("ui-state-error");
+		if (options.autoNext) { // 跳转焦点
+			var focusables = $(":focusable"),
+				index = focusables.index(this),
+				next = focusables.eq(index + 1).length ? focusables.eq(index + 1) : focusables.eq(0);
+			next.focus();
+		}
+	}
+};
+handler.unfocusable = function(e) {
+	var self = $(this), 
+		barcode = self.data("barcode"), 
+		options = self.data("barcode.options");
+	var la = barcode.lastAccess, 
+		val = barcode.val,
+		now = barcode.lastAccess = Date.now();
+//	console.log(now - la);
+	if (now - la < options.lag) { // 扫码器比人快
+		barcode.val = val + String.fromCharCode(e.keyCode);
+	} else {
+		return barcode.val = ""; // 清空记录
+	}
+//	console.log(now - la, val);
+	if (e.keyCode == 13) {
+		e.preventDefault(); // 阻止提交
+		if ($.isFunction(options.verify) && // 进行验证
+				!options.verify(val)) {
+			return self.addClass("ui-state-error");
+		}
+		self.removeClass("ui-state-error");
+		if ($.isFunction(options.complete)) { options.complete(val, this); }
+		// 跳转焦点无效
+	}
+};
+
 
 $.fn.barcode = function(options) {
 //	console.log(this);
@@ -47,25 +97,14 @@ $.fn.barcode = function(options) {
 			options.verify === "GTIN") {
 		options.verify = verify.GTIN;
 	}
-	this.on("focus click", function() { this.select(); });
-	this.on("keypress", function(e) {
-		var self = $(this);
-//		console.log(e);
-	if (e.keyCode == 13) {
-		e.preventDefault(); // 阻止提交
-		if (typeof options.verify === "function" && // 进行验证
-				!options.verify(self.val())) {
-			this.select();
-			return self.addClass("ui-state-error");
-		}
-		self.removeClass("ui-state-error");
-		if (options.autoNext) { // 跳转焦点
-			var focusables = $(":focusable"),
-				index = focusables.index(this),
-				next = focusables.eq(index + 1).length ? focusables.eq(index + 1) : focusables.eq(0);
-			next.focus();
-		}
-	} });
+	this.data("barcode", {}); // runtime sandbox
+	this.data("barcode.options", options);
+	if (this.is(":focusable")) {
+		this.on("focus click", function() { this.select(); });
+		this.on("keypress", handler.focusable);
+	} else {
+		this.on("keypress", handler.unfocusable);
+	}
 };
 
 })(jQuery);
