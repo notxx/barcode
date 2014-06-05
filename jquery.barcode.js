@@ -64,16 +64,21 @@ handler.unfocusable = function(e) {
 		barcode = self.data("barcode"), 
 		options = self.data("barcode.options");
 	var la = barcode.lastAccess, 
-		val = barcode.val,
+		val = barcode.val || "",
 		now = barcode.lastAccess = Date.now();
-//	console.log(now - la);
-	if (now - la < options.lag) { // 扫码器比人快
+	console.log(now - la);
+	if (!la || now - la < options.lag) { // 扫码器比人快
 		barcode.val = val + String.fromCharCode(e.keyCode);
 	} else {
-		return barcode.val = ""; // 清空记录
+		delete barcode.lastAccess;
+		delete barcode.val; // 清空记录
+		return;
 	}
-//	console.log(now - la, val);
+	console.log(now - la, val);
 	if (e.keyCode == 13) {
+		delete barcode.lastAccess;
+		delete barcode.val; // 清空记录
+		console.log(barcode);
 		e.preventDefault(); // 阻止提交
 		if ($.isFunction(options.verify) && // 进行验证
 				!options.verify(val)) {
@@ -81,7 +86,7 @@ handler.unfocusable = function(e) {
 		}
 		self.removeClass("ui-state-error");
 		if ($.isFunction(options.complete)) { options.complete(val, this); }
-		// 跳转焦点无效
+		// 不跳转焦点
 	}
 };
 
