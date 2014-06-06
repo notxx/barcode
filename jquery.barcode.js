@@ -66,7 +66,7 @@ handler.unfocusable = function(e) {
 	var la = barcode.lastAccess, 
 		val = barcode.val || "",
 		now = barcode.lastAccess = Date.now();
-	console.log(now - la);
+//	console.log(now - la);
 	if (!la || now - la < options.lag) { // 扫码器比人快
 		barcode.val = val + String.fromCharCode(e.keyCode);
 	} else {
@@ -74,11 +74,11 @@ handler.unfocusable = function(e) {
 		delete barcode.val; // 清空记录
 		return;
 	}
-	console.log(now - la, val);
+//	console.log(now - la, val);
 	if (e.keyCode == 13) {
 		delete barcode.lastAccess;
 		delete barcode.val; // 清空记录
-		console.log(barcode);
+//		console.log(barcode);
 		e.preventDefault(); // 阻止提交
 		if ($.isFunction(options.verify) && // 进行验证
 				!options.verify(val)) {
@@ -104,7 +104,7 @@ $.fn.barcode = function(options) {
 	}
 	this.data("barcode", {}); // runtime sandbox
 	this.data("barcode.options", options);
-	if (this.is(":focusable")) {
+	if (this.is(":input")) {
 		this.on("focus click", function() { this.select(); });
 		this.on("keypress", handler.focusable);
 	} else {
