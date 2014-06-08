@@ -106,9 +106,9 @@ $.fn.barcode = function(options) {
 	this.data("barcode.options", options);
 	if (this.is(":input")) {
 		this.on("focus click", function() { this.select(); });
-		this.on("keypress", handler.focusable);
+		this.on("keydown", handler.focusable);
 	} else {
-		this.on("keypress", handler.unfocusable);
+		this.on("keydown", handler.unfocusable);
 	}
 };
 
