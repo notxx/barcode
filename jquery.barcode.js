@@ -45,13 +45,16 @@ handler.focusable = function(e) {
 //	console.log(e);
 	if (e.keyCode == 13) {
 		e.preventDefault(); // 阻止提交
+		e.stopPropagation();
 		if ($.isFunction(options.verify) && // 进行验证
 				!options.verify(self.val())) {
 			this.select();
 			return self.addClass("ui-state-error");
 		}
 		self.removeClass("ui-state-error");
-		if (options.autoNext) { // 跳转焦点
+		if ($.isFunction(options.complete)) {
+			options.complete.apply(self, [ self.val() ]); 
+		} else if (options.autoNext) { // 跳转焦点
 			var focusables = $(":focusable"),
 				index = focusables.index(this),
 				next = focusables.eq(index + 1).length ? focusables.eq(index + 1) : focusables.eq(0);
@@ -80,12 +83,15 @@ handler.unfocusable = function(e) {
 		delete barcode.val; // 清空记录
 //		console.log(barcode);
 		e.preventDefault(); // 阻止提交
+		e.stopPropagation();
 		if ($.isFunction(options.verify) && // 进行验证
 				!options.verify(val)) {
 			return self.addClass("ui-state-error");
 		}
 		self.removeClass("ui-state-error");
-		if ($.isFunction(options.complete)) { options.complete(val, this); }
+		if ($.isFunction(options.complete)) {
+			options.complete.apply(self, [ val ]); 
+		}
 		// 不跳转焦点
 	}
 };
@@ -105,7 +111,7 @@ $.fn.barcode = function(options) {
 	this.data("barcode", {}); // runtime sandbox
 	this.data("barcode.options", options);
 	if (this.is(":input")) {
-		this.on("focus click", function() { this.select(); });
+		this.on("focus mouseup", function() { this.select(); });
 		this.on("keydown", handler.focusable);
 	} else {
 		this.on("keydown", handler.unfocusable);
